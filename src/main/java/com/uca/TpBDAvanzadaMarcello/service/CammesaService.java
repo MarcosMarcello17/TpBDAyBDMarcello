@@ -3,7 +3,10 @@ package com.uca.TpBDAvanzadaMarcello.service;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -26,26 +29,26 @@ public class CammesaService {
 		this.demandaIntervaloRepo = demandaIntervaloRepo;
 	}
 	
-	public String anadirRegiones() {
+	public ResponseEntity<?> anadirRegiones() {
 		regionRepo.deleteAll();
         ResponseEntity<Region[]> response = restTemplateBuilder.build().getForEntity("https://api.cammesa.com/demanda-svc/demanda/RegionesDemanda", Region[].class);
         List<Region> regiones =  Arrays.asList(response.getBody());
         for(Region region: regiones) {
         	regionRepo.save(region);
         }
-        return "Regiones Actualizadas";
+        return new ResponseEntity<>("Regiones Actualizadas", HttpStatus.OK);
 	}
 
 	@SuppressWarnings("null")
-	public String demandaFeriadoCercano(String fecha) {
+	public ResponseEntity<?> demandaFeriadoCercano(String fecha) {
 		LocalDate fechaIng = LocalDate.parse(fecha);
 		if(fechaIng.compareTo(LocalDate.now()) >= 0) {
-			return "Dia Invalido";
+			return new ResponseEntity<>("Dia Invalido", HttpStatus.BAD_REQUEST);
 		}
 		while(!restTemplateBuilder.build().getForObject("https://api.cammesa.com/demanda-svc/demanda/EsDiaFeriado?fecha=" + fechaIng, Boolean.class)) {
 			fechaIng = fechaIng.minusDays(1);
 		}
-		return Integer.toString(this.demandaPromedioPaisByFecha(fechaIng.toString()));
+		return new ResponseEntity<>(Integer.toString(this.demandaPromedioPaisByFecha(fechaIng.toString())),HttpStatus.OK);
 	}
 	
 	private int demandaPromedioPaisByFecha(String fecha) {
@@ -56,26 +59,37 @@ public class CammesaService {
         	demTot += intervalo.getDem();
         	tot++;
         }
-        return (demTot / tot);
+        if(tot == 0) {
+        	return 0;
+        }else {
+        	return (demTot / tot);
+        }
     }
 	
-	public String anadirDemandaYTemperatura(String idRegion, String fecha) {
+	public ResponseEntity<?> anadirDemandaYTemperatura(String idRegion, String fecha) {
 		ResponseEntity<DemandaIntervalo[]> response = restTemplateBuilder.build().getForEntity("https://api.cammesa.com/demanda-svc/demanda/ObtieneDemandaYTemperaturaRegionByFecha?id_region="+idRegion+"&fecha="+ fecha, DemandaIntervalo[].class);
         List<DemandaIntervalo> demandaPorIntervalos =  Arrays.asList(response.getBody());
+        if(regionRepo.findAll().isEmpty()) {
+        	return new ResponseEntity<>("Regiones no añadidas", HttpStatus.BAD_REQUEST);
+        }
+        Optional<Region> reg = regionRepo.findById(Long.parseLong(idRegion));
+        if (reg.isEmpty()) {
+        	return new ResponseEntity<>("Region ID no encontrado", HttpStatus.NOT_FOUND);
+        }
         for(DemandaIntervalo intervalo: demandaPorIntervalos) {
-        	intervalo.setRegion(regionRepo.findById(Long.parseLong(idRegion)).get());
+        	intervalo.setRegion(reg.get());
         	demandaIntervaloRepo.save(intervalo);
         }
-        return "Añadido";
+        return new ResponseEntity<>("Añadido", HttpStatus.OK);
 	}
 
-	public String borrarRegion(String idRegion) {
+	public ResponseEntity<?> borrarRegion(String idRegion) {
 		regionRepo.deleteRegionWithID(idRegion);
-		return "Region Eliminada";
+		return new ResponseEntity<>("Region Eliminada", HttpStatus.OK);
 	}
 
-	public List<DemandaEnDia> obtenerDiasMayorDemanda() {
-		return demandaIntervaloRepo.obtenerDiaMayorDemandaPorRegion();
+	public ResponseEntity<?> obtenerDiasMayorDemanda() {
+		return new ResponseEntity<>(demandaIntervaloRepo.obtenerDiaMayorDemandaPorRegion(), HttpStatus.OK);
 	}
 
 }

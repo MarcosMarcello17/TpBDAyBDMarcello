@@ -44,27 +44,27 @@ public class APIController {
 	
 	@GetMapping("/diaConMayorDemanda")
 	public ResponseEntity<?> obtenerDiaMayorDemandaPorRegion(){
-		return new ResponseEntity<>(cammesaService.obtenerDiasMayorDemanda(), HttpStatus.OK);
+		return cammesaService.obtenerDiasMayorDemanda();
 	}
 	
 	@GetMapping("/demandaFeriadoMasCercano")
-	public ResponseEntity<?> obtenerDemFeriado(@RequestParam(value="fecha", defaultValue="2023-01-01") String fecha) {
-		return new ResponseEntity<>(cammesaService.demandaFeriadoCercano(fecha), HttpStatus.OK);
+	public ResponseEntity<?> obtenerDemFeriado(@RequestParam(value="fecha") String fecha) {
+		return cammesaService.demandaFeriadoCercano(fecha);
 	}
 	
 	@DeleteMapping("/borrarRegion")
-	public ResponseEntity<?> borrarRegion(@RequestParam(value = "idRegion", defaultValue="0") String idRegion) {
-		return new ResponseEntity<>(cammesaService.borrarRegion(idRegion), HttpStatus.OK)	;
+	public ResponseEntity<?> borrarRegion(@RequestParam(value = "idRegion") String idRegion) {
+		return cammesaService.borrarRegion(idRegion);
 	}
 	
 	@PostMapping("/demandaYTemperaturaDiario")
-	public ResponseEntity<?> descargarDemandaYTemp(@RequestParam(value = "idRegion", defaultValue="1002") String idRegion, @RequestParam(value= "fecha", defaultValue="2023-01-01") String fecha) {
-		return new ResponseEntity<>(cammesaService.anadirDemandaYTemperatura(idRegion, fecha),HttpStatus.OK);
+	public ResponseEntity<?> descargarDemandaYTemp(@RequestParam(value = "idRegion") String idRegion, @RequestParam(value= "fecha") String fecha) {
+		return cammesaService.anadirDemandaYTemperatura(idRegion, fecha);
 	}
 	
 	@PostMapping("/actualizarRegiones")
 	public ResponseEntity<?> actualizarInfoRegiones(){
-		return new ResponseEntity<>(this.cammesaService.anadirRegiones(), HttpStatus.OK);
+		return this.cammesaService.anadirRegiones();
 	}
 	
 	@PostMapping("/demandaYTemperaturaMensual")
