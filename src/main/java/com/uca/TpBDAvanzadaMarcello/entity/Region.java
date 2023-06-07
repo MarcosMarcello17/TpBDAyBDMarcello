@@ -1,8 +1,13 @@
 package com.uca.TpBDAvanzadaMarcello.entity;
 
+import java.util.Set;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -64,8 +69,15 @@ public class Region {
 	@Column
 	private String subTipo;
 	
+	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private Set<DemandaIntervalo> demEnRegion;
+	
 	public Region() {
 		
+	}
+	
+	public void addDem(DemandaIntervalo dem) {
+		this.demEnRegion.add(dem);
 	}
 
 	public int getIdElemento() {

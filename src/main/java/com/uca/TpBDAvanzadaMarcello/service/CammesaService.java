@@ -78,6 +78,7 @@ public class CammesaService {
         }
         for(DemandaIntervalo intervalo: demandaPorIntervalos) {
         	intervalo.setRegion(reg.get());
+        	reg.get().addDem(intervalo);
         	demandaIntervaloRepo.save(intervalo);
         }
         return new ResponseEntity<>("Añadido", HttpStatus.OK);

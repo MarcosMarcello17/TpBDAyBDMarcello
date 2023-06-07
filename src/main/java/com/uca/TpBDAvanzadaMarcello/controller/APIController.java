@@ -70,7 +70,8 @@ public class APIController {
 	@PostMapping("/demandaYTemperaturaMensual")
 	public ResponseEntity<?> descargarDemandaMensual(@RequestParam(value = "mes", defaultValue = "01") String mes, @RequestParam(value="idRegion", defaultValue="1002") String idRegion) throws Exception {
 		JobParameters Parameters = new JobParametersBuilder()
-				.addLong("startAt", System.currentTimeMillis())
+				.addString("mes", mes)
+				.addString("idRegion", idRegion)
 				.toJobParameters();
 		try {
 			jobLauncher.run(job, Parameters);

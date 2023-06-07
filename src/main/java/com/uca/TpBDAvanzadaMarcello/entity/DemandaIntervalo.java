@@ -3,6 +3,7 @@ package com.uca.TpBDAvanzadaMarcello.entity;
 import java.util.Date;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,7 +25,7 @@ public class DemandaIntervalo {
 	@Setter
 	@ManyToOne
 	@JoinColumn(name= "region_id")
-	@OneToMany(mappedBy= "DemandaIntervalo")
+	@OneToMany(mappedBy= "DemandaIntervalo", fetch = FetchType.EAGER)
 	private Region region;
 	@Getter
 	@Setter

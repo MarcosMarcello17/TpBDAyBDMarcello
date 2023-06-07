@@ -1,6 +1,7 @@
 package com.uca.TpBDAvanzadaMarcello;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +15,6 @@ import com.uca.TpBDAvanzadaMarcello.repository.DemandaIntervaloRepository;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -24,11 +24,12 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.data.RepositoryItemWriter;
 
 @Configuration
-@EnableAutoConfiguration
-@EnableBatchProcessing
-public class BatchConfiguration extends DefaultBatchConfiguration{
+//@EnableAutoConfiguration
+
+public class BatchConfiguration{
 	
 	private String apiUrl = "https://api.cammesa.com/demanda-svc/demanda/ObtieneDemandaYTemperaturaRegionByFecha?fecha=2023-01-01&id_region=1002";
+	private String regionID = "1002";
 	
 	@Autowired
 	private RestTemplateBuilder restTemplateBuilder;
@@ -37,8 +38,8 @@ public class BatchConfiguration extends DefaultBatchConfiguration{
 	private DemandaIntervaloRepository demIntRepo;
 	
 	@Bean
-	public ItemReader<DemandaIntervalo> reader(){
-		return new RESTDemandaReader(apiUrl, restTemplateBuilder);
+	public ItemReader<DemandaIntervalo> reader(@Value("#{jobParameters['idRegion']}") String idRegion){
+		return new RESTDemandaReader(regionID, restTemplateBuilder);
 	}
 
 	@Bean
@@ -70,7 +71,7 @@ public class BatchConfiguration extends DefaultBatchConfiguration{
 	    PlatformTransactionManager transactionManager) {
 	  return new StepBuilder("step1", jobRepository)
 	    .<DemandaIntervalo, DemandaIntervalo> chunk(12, transactionManager)
-	    .reader(reader())
+	    .reader(reader(null))
 	    .processor(processor())
 	    .writer(writer())
 	    .build();
