@@ -1,5 +1,6 @@
 package com.uca.TpBDAvanzadaMarcello.service;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -30,11 +31,12 @@ public class CammesaService {
 	}
 	
 	public ResponseEntity<?> anadirRegiones() {
-		regionRepo.deleteAll();
         ResponseEntity<Region[]> response = restTemplateBuilder.build().getForEntity("https://api.cammesa.com/demanda-svc/demanda/RegionesDemanda", Region[].class);
         List<Region> regiones =  Arrays.asList(response.getBody());
         for(Region region: regiones) {
-        	regionRepo.save(region);
+        	if(!regionRepo.existsById(Integer.toUnsignedLong(region.getId()))) {
+        		regionRepo.save(region);
+        	}
         }
         return new ResponseEntity<>("Regiones Actualizadas", HttpStatus.OK);
 	}
@@ -48,10 +50,10 @@ public class CammesaService {
 		while(!restTemplateBuilder.build().getForObject("https://api.cammesa.com/demanda-svc/demanda/EsDiaFeriado?fecha=" + fechaIng, Boolean.class)) {
 			fechaIng = fechaIng.minusDays(1);
 		}
-		return new ResponseEntity<>(Integer.toString(this.demandaPromedioPaisByFecha(fechaIng.toString())),HttpStatus.OK);
+		return new ResponseEntity<>(Integer.toString(this.demandaPromedioPaisByFecha(fechaIng)),HttpStatus.OK);
 	}
 	
-	private int demandaPromedioPaisByFecha(String fecha) {
+	private int demandaPromedioPaisByFecha(LocalDate fecha) {
         List<DemandaIntervalo> demFecha= demandaIntervaloRepo.selectAvgDemandaOfDate(fecha);
         Integer demTot = 0;
         Integer tot = 0;
@@ -78,14 +80,13 @@ public class CammesaService {
         }
         for(DemandaIntervalo intervalo: demandaPorIntervalos) {
         	intervalo.setRegion(reg.get());
-        	reg.get().addDem(intervalo);
         	demandaIntervaloRepo.save(intervalo);
         }
         return new ResponseEntity<>("Añadido", HttpStatus.OK);
 	}
 
 	public ResponseEntity<?> borrarRegion(String idRegion) {
-		regionRepo.deleteRegionWithID(idRegion);
+		regionRepo.deleteRegionWithID(Integer.parseInt(idRegion));
 		return new ResponseEntity<>("Region Eliminada", HttpStatus.OK);
 	}
 

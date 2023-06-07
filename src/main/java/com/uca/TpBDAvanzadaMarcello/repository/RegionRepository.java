@@ -14,5 +14,5 @@ public interface RegionRepository extends JpaRepository<Region, Long> {
 	@Modifying
 	@Transactional
 	@Query(value="DELETE FROM region WHERE id= :idRegion", nativeQuery = true)
-	void deleteRegionWithID(@Param("idRegion") String idRegion);
+	void deleteRegionWithID(@Param("idRegion") Integer idRegion);
 }

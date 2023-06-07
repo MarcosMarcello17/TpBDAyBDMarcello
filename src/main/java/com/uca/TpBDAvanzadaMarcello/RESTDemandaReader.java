@@ -41,7 +41,6 @@ public class RESTDemandaReader implements ItemReader<DemandaIntervalo> {
             Optional<Region> reg = regionRepo.findById(Long.parseLong(regionID));
             for(DemandaIntervalo intervalo: demandaData) {
             	intervalo.setRegion(reg.get());
-            	reg.get().addDem(intervalo);
             }
         }
  

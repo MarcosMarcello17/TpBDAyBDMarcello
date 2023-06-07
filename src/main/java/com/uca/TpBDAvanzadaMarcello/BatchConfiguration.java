@@ -38,7 +38,7 @@ public class BatchConfiguration{
 	private DemandaIntervaloRepository demIntRepo;
 	
 	@Bean
-	public ItemReader<DemandaIntervalo> reader(@Value("#{jobParameters['idRegion']}") String idRegion){
+	public ItemReader<DemandaIntervalo> reader(){
 		return new RESTDemandaReader(regionID, restTemplateBuilder);
 	}
 
@@ -71,7 +71,7 @@ public class BatchConfiguration{
 	    PlatformTransactionManager transactionManager) {
 	  return new StepBuilder("step1", jobRepository)
 	    .<DemandaIntervalo, DemandaIntervalo> chunk(12, transactionManager)
-	    .reader(reader(null))
+	    .reader(reader())
 	    .processor(processor())
 	    .writer(writer())
 	    .build();

@@ -69,15 +69,8 @@ public class Region {
 	@Column
 	private String subTipo;
 	
-	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private Set<DemandaIntervalo> demEnRegion;
-	
 	public Region() {
 		
-	}
-	
-	public void addDem(DemandaIntervalo dem) {
-		this.demEnRegion.add(dem);
 	}
 
 	public int getIdElemento() {
